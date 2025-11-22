@@ -302,9 +302,9 @@ export default function DespiaDemo() {
   // Print Document
   const printDocument = (jobName = 'Document', fileUrl = 'https://doc.phomemo.com/Labels-Sample.pdf') => {
     try {
-      // Only encode jobName, NOT the fileUrl per Despia documentation
+      // CRITICAL: Only encode jobName, fileUrl MUST NOT be encoded at all!
       const encodedJobName = encodeURIComponent(jobName);
-      // Construct URL exactly as documented: printitem://?jobName={ENCODED-NAME}&printItem={URL}
+      // fileUrl is passed as-is without any encoding - this is required by Despia SDK
       const printUrl = `printitem://?jobName=${encodedJobName}&printItem=${fileUrl}`;
       despia(printUrl);
       showResultDialog('Print Document', `Print dialog opened for: ${jobName}\nURL: ${printUrl}`);
@@ -542,7 +542,7 @@ export default function DespiaDemo() {
               />
               <ListItem
                 link
-                onClick={() => printDocument('Print Ticket', 'https://www.despia.com/images/logo.png')}
+                onClick={() => printDocument('Print Ticket', 'https://doc.phomemo.com/Labels-Sample.pdf')}
                 media={<PrinterFill className="w-7 h-7" />}
                 title="Print Document"
                 subtitle="Print PDF or image"
