@@ -314,7 +314,7 @@ export default function DespiaDemo() {
   };
 
   // iOS Home Widget
-  const setWidget = (svgUrl = 'https://cloud.despia.com/api:YD6AJh2B/eid', refreshTime = 1) => {
+  const setWidget = (svgUrl = 'https://cloud.despia.com/api:YD6AJh2B/eid', refreshTime = 15) => {
     try {
       // Construct widget URL: widget://${svg}?refresh=${refresh_time}
       // refresh_time is in minutes
@@ -563,7 +563,7 @@ export default function DespiaDemo() {
               />
               <ListItem
                 link
-                onClick={() => setWidget('https://cloud.despia.com/api:YD6AJh2B/eid', 1)}
+                onClick={() => setWidget('https://cloud.despia.com/api:YD6AJh2B/eid', 15)}
                 media={<AppFill className="w-7 h-7" />}
                 title="Set iOS Home Widget"
                 subtitle="Configure home screen widget"
