@@ -41,7 +41,9 @@ import CloseIcon from '../components/CloseIcon';
 
 export default function DespiaDemo() {
   const [activeTab, setActiveTab] = useState('payments');
+  const [prevTab, setPrevTab] = useState('payments');
   const [tabbarVisible, setTabbarVisible] = useState(true);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const lastScrollY = useRef(0);
   const pageRef = useRef(null);
   
@@ -298,7 +300,7 @@ export default function DespiaDemo() {
   };
 
   // Print Document
-  const printDocument = (jobName = 'Document', fileUrl = 'https://www.africau.edu/images/default/sample.pdf') => {
+  const printDocument = (jobName = 'Document', fileUrl = 'https://pdfobject.com/pdf/sample.pdf') => {
     try {
       const encodedJobName = encodeURIComponent(jobName);
       const encodedFileUrl = encodeURIComponent(fileUrl);
@@ -378,9 +380,28 @@ export default function DespiaDemo() {
     };
   }, []);
 
-  // Render content based on active tab
-  const renderTabContent = () => {
-    switch (activeTab) {
+  // Handle tab change with transition
+  const handleTabChange = (newTab) => {
+    if (newTab === activeTab || isTransitioning) return;
+    
+    setIsTransitioning(true);
+    setPrevTab(activeTab);
+    
+    // Start transition - change tab immediately but show both during transition
+    setTimeout(() => {
+      setActiveTab(newTab);
+      
+      // End transition after animation completes
+      setTimeout(() => {
+        setIsTransitioning(false);
+        setPrevTab(newTab);
+      }, 300);
+    }, 50);
+  };
+
+  // Render content based on tab
+  const renderTabContent = (tab) => {
+    switch (tab) {
       case 'payments':
         return (
           <>
@@ -564,7 +585,19 @@ export default function DespiaDemo() {
         centerTitle 
       />
 
-      {renderTabContent()}
+      <div className="relative" style={{ minHeight: '100%' }}>
+        {/* Previous tab content - exiting */}
+        {isTransitioning && prevTab !== activeTab && (
+          <div className="page-transition-fade-exit absolute inset-0 w-full">
+            {renderTabContent(prevTab)}
+          </div>
+        )}
+        
+        {/* Current tab content - entering */}
+        <div className={isTransitioning && prevTab !== activeTab ? 'page-transition-fade-enter' : ''}>
+          {renderTabContent(activeTab)}
+        </div>
+      </div>
 
       {/* Bottom padding for tabbar + safe area */}
       <div style={{ height: 'calc(64px + var(--safe-area-bottom, 0px))', minHeight: '80px' }} />
@@ -706,7 +739,7 @@ export default function DespiaDemo() {
         <ToolbarPane>
           <TabbarLink
             active={activeTab === 'payments'}
-            onClick={() => setActiveTab('payments')}
+            onClick={() => handleTabChange('payments')}
             icon={
               <Icon
                 ios={<CreditcardFill className="w-7 h-7" />}
@@ -717,7 +750,7 @@ export default function DespiaDemo() {
           />
           <TabbarLink
             active={activeTab === 'device'}
-            onClick={() => setActiveTab('device')}
+            onClick={() => handleTabChange('device')}
             icon={
               <Icon
                 ios={<DevicePhonePortrait className="w-7 h-7" />}
@@ -728,7 +761,7 @@ export default function DespiaDemo() {
           />
           <TabbarLink
             active={activeTab === 'communication'}
-            onClick={() => setActiveTab('communication')}
+            onClick={() => handleTabChange('communication')}
             icon={
               <Icon
                 ios={<BubbleLeftBubbleRightFill className="w-7 h-7" />}
@@ -739,7 +772,7 @@ export default function DespiaDemo() {
           />
           <TabbarLink
             active={activeTab === 'media'}
-            onClick={() => setActiveTab('media')}
+            onClick={() => handleTabChange('media')}
             icon={
               <Icon
                 ios={<LocationFill className="w-7 h-7" />}
