@@ -300,12 +300,14 @@ export default function DespiaDemo() {
   };
 
   // Print Document
-  const printDocument = (jobName = 'Document', fileUrl = 'https://pdfobject.com/pdf/sample.pdf') => {
+  const printDocument = (jobName = 'Document', fileUrl = 'https://doc.phomemo.com/Labels-Sample.pdf') => {
     try {
+      // Only encode jobName, NOT the fileUrl per Despia documentation
       const encodedJobName = encodeURIComponent(jobName);
-      // Don't encode the fileUrl - pass it as-is per Despia documentation
-      despia(`printitem://?jobName=${encodedJobName}&printItem=${fileUrl}`);
-      showResultDialog('Print Document', `Print dialog opened for: ${jobName}`);
+      // Construct URL exactly as documented: printitem://?jobName={ENCODED-NAME}&printItem={URL}
+      const printUrl = `printitem://?jobName=${encodedJobName}&printItem=${fileUrl}`;
+      despia(printUrl);
+      showResultDialog('Print Document', `Print dialog opened for: ${jobName}\nURL: ${printUrl}`);
     } catch (error) {
       showResultDialog('Error', `Error: ${error.message}`);
     }
@@ -540,7 +542,7 @@ export default function DespiaDemo() {
               />
               <ListItem
                 link
-                onClick={() => printDocument('Sample Document', 'https://www.africau.edu/images/default/sample.pdf')}
+                onClick={() => printDocument('Print Ticket', 'https://www.despia.com/images/logo.png')}
                 media={<PrinterFill className="w-7 h-7" />}
                 title="Print Document"
                 subtitle="Print PDF or image"
