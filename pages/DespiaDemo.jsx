@@ -303,8 +303,8 @@ export default function DespiaDemo() {
   const printDocument = (jobName = 'Document', fileUrl = 'https://pdfobject.com/pdf/sample.pdf') => {
     try {
       const encodedJobName = encodeURIComponent(jobName);
-      const encodedFileUrl = encodeURIComponent(fileUrl);
-      despia(`printitem://?jobName=${encodedJobName}&printItem=${encodedFileUrl}`);
+      // Don't encode the fileUrl - pass it as-is per Despia documentation
+      despia(`printitem://?jobName=${encodedJobName}&printItem=${fileUrl}`);
       showResultDialog('Print Document', `Print dialog opened for: ${jobName}`);
     } catch (error) {
       showResultDialog('Error', `Error: ${error.message}`);
@@ -582,7 +582,8 @@ export default function DespiaDemo() {
         subtitle="Demo Application"
         large 
         transparent
-        centerTitle 
+        centerTitle
+        style={{ paddingTop: 'var(--safe-area-top, 0px)' }}
       />
 
       <div className="relative" style={{ minHeight: '100%' }}>
