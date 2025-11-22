@@ -34,6 +34,7 @@ import {
   LocationFill,
   DevicePhonePortrait,
   BubbleLeftBubbleRightFill,
+  PrinterFill,
 } from 'framework7-icons/react';
 import despia from 'despia-native';
 import CloseIcon from '../components/CloseIcon';
@@ -263,9 +264,14 @@ export default function DespiaDemo() {
   // Contact Access
   const accessContacts = async () => {
     try {
-      await despia("requestcontactpermission://");
+      despia("requestcontactpermission://");
       const contactsData = await despia('readcontacts://', ['contacts']);
-      showResultDialog('Contacts', `Retrieved ${contactsData.contacts?.length || 0} contacts`, contactsData);
+      // Structure: { "Contact Name": ["+phone"] }
+      const contactCount = Object.keys(contactsData.contacts || contactsData || {}).length;
+      const contactsList = Object.entries(contactsData.contacts || contactsData || {})
+        .map(([name, phones]) => `${name}: ${Array.isArray(phones) ? phones.join(', ') : phones}`)
+        .join('\n');
+      showResultDialog('Contacts', `Retrieved ${contactCount} contacts:\n\n${contactsList || 'No contacts found'}`, contactsData.contacts || contactsData);
     } catch (error) {
       showResultDialog('Error', `Error: ${error.message}`);
     }
@@ -286,6 +292,18 @@ export default function DespiaDemo() {
     try {
       const data = await despia('getappversion://', ['versionNumber', 'bundleNumber']);
       showResultDialog('App Version', `App Version: ${data.versionNumber}, Bundle: ${data.bundleNumber}`, data);
+    } catch (error) {
+      showResultDialog('Error', `Error: ${error.message}`);
+    }
+  };
+
+  // Print Document
+  const printDocument = (jobName = 'Document', fileUrl = 'https://www.africau.edu/images/default/sample.pdf') => {
+    try {
+      const encodedJobName = encodeURIComponent(jobName);
+      const encodedFileUrl = encodeURIComponent(fileUrl);
+      despia(`printitem://?jobName=${encodedJobName}&printItem=${encodedFileUrl}`);
+      showResultDialog('Print Document', `Print dialog opened for: ${jobName}`);
     } catch (error) {
       showResultDialog('Error', `Error: ${error.message}`);
     }
@@ -499,6 +517,14 @@ export default function DespiaDemo() {
                 title="Screenshot Capture"
                 after="Capture"
               />
+              <ListItem
+                link
+                onClick={() => printDocument('Sample Document', 'https://www.africau.edu/images/default/sample.pdf')}
+                media={<PrinterFill className="w-7 h-7" />}
+                title="Print Document"
+                subtitle="Print PDF or image"
+                after="Print"
+              />
             </List>
 
             <BlockTitle>Notifications & Location</BlockTitle>
@@ -675,6 +701,7 @@ export default function DespiaDemo() {
         className={`left-0 bottom-0 fixed transition-transform duration-300 ${
           tabbarVisible ? 'translate-y-0' : 'translate-y-full'
         }`}
+        style={{ paddingBottom: 'var(--safe-area-bottom, 0px)' }}
       >
         <ToolbarPane>
           <TabbarLink
